@@ -7,6 +7,18 @@
 
     <title>@yield('title', 'QECH Attendance System') | QECH</title>
 
+    {{-- Restore sidebar state before page rendering --}}
+    <script>
+        try {
+            if (
+                window.innerWidth >= 1024 &&
+                localStorage.getItem('qechSidebarCollapsed') === 'true'
+            ) {
+                document.documentElement.classList.add('qech-sidebar-collapsed');
+            }
+        } catch (error) {}
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
@@ -49,6 +61,79 @@
             min-width: 650px;
         }
 
+        /* Sidebar sizing */
+        #mobileSidebar {
+            width: 16rem;
+            overflow-x: hidden;
+            transition: width .3s ease, transform .3s ease;
+        }
+
+        /* Main content positioning */
+        #appMain {
+            margin-left: 0;
+            min-width: 0;
+            transition: margin-left .3s ease;
+        }
+
+        /* Hide scrollbar but keep navigation scrollable */
+        .sidebar-navigation {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .sidebar-navigation::-webkit-scrollbar {
+            display: none;
+        }
+
+        @media (min-width: 1024px) {
+            #appMain {
+                margin-left: 16rem;
+            }
+
+            html.qech-sidebar-collapsed #mobileSidebar {
+                width: 5rem;
+            }
+
+            html.qech-sidebar-collapsed #appMain {
+                margin-left: 5rem;
+            }
+
+            /* Hide sidebar text */
+            html.qech-sidebar-collapsed .sidebar-link-label,
+            html.qech-sidebar-collapsed .sidebar-section-label,
+            html.qech-sidebar-collapsed .sidebar-brand-copy,
+            html.qech-sidebar-collapsed .sidebar-profile-copy,
+            html.qech-sidebar-collapsed .sidebar-profile-arrow,
+            html.qech-sidebar-collapsed .sidebar-location,
+            html.qech-sidebar-collapsed .sidebar-collapse-label {
+                display: none !important;
+            }
+
+            /* Center navigation icons */
+            html.qech-sidebar-collapsed #mobileSidebar nav a {
+                justify-content: center;
+                padding-left: .5rem;
+                padding-right: .5rem;
+            }
+
+            html.qech-sidebar-collapsed #mobileSidebar nav a svg {
+                margin-right: 0 !important;
+            }
+
+            html.qech-sidebar-collapsed .sidebar-brand,
+            html.qech-sidebar-collapsed .sidebar-profile,
+            html.qech-sidebar-collapsed .sidebar-collapse-button {
+                justify-content: center;
+            }
+        }
+
+        /* Collapse button is desktop-only */
+        @media (max-width: 1023px) {
+            #sidebarCollapseButton {
+                display: none !important;
+            }
+        }
+
         @media (max-width: 640px) {
             .qech-page-content {
                 padding: 16px;
@@ -68,11 +153,11 @@
 
     <div class="min-h-screen">
 
-        {{-- Existing sidebar; we will modernize its styling next --}}
+        {{-- Sidebar --}}
         @include('partials.nav')
 
         {{-- Main application area --}}
-        <div class="lg:ml-64 min-h-screen flex flex-col min-w-0">
+        <div id="appMain" class="min-h-screen flex flex-col min-w-0">
 
             {{-- Top navigation --}}
             <header class="sticky top-0 z-30 bg-white
@@ -81,9 +166,9 @@
 
                 <div class="flex items-center justify-between gap-4 min-h-10">
 
-                    {{-- Page title and mobile menu --}}
                     <div class="flex items-center gap-3 min-w-0">
 
+                        {{-- Mobile menu --}}
                         <button type="button"
                                 onclick="openSidebar()"
                                 class="lg:hidden flex-shrink-0 w-10 h-10
@@ -210,9 +295,43 @@
         </div>
     </div>
 
-    {{-- Mobile sidebar controls --}}
+    {{-- Sidebar controls --}}
     <script>
-        function openSidebar() {
+        // Desktop collapse / expand
+        window.toggleDesktopSidebar = function () {
+            const root = document.documentElement;
+
+            root.classList.toggle('qech-sidebar-collapsed');
+
+            const collapsed = root.classList.contains(
+                'qech-sidebar-collapsed'
+            );
+
+            try {
+                localStorage.setItem(
+                    'qechSidebarCollapsed',
+                    collapsed ? 'true' : 'false'
+                );
+            } catch (error) {}
+
+            const button = document.getElementById(
+                'sidebarCollapseButton'
+            );
+
+            if (button) {
+                button.title = collapsed
+                    ? 'Expand sidebar'
+                    : 'Collapse sidebar';
+
+                button.setAttribute(
+                    'aria-label',
+                    collapsed ? 'Expand sidebar' : 'Collapse sidebar'
+                );
+            }
+        };
+
+        // Mobile sidebar
+        window.openSidebar = function () {
             const sidebar = document.getElementById('mobileSidebar');
             const overlay = document.getElementById('sidebarOverlay');
 
@@ -221,9 +340,9 @@
             sidebar.classList.remove('-translate-x-full');
             overlay.classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
-        }
+        };
 
-        function closeSidebar() {
+        window.closeSidebar = function () {
             const sidebar = document.getElementById('mobileSidebar');
             const overlay = document.getElementById('sidebarOverlay');
 
@@ -236,11 +355,15 @@
             }
 
             document.body.classList.remove('overflow-hidden');
-        }
+        };
 
         window.addEventListener('resize', function () {
             if (window.innerWidth >= 1024) {
-                closeSidebar();
+                window.closeSidebar();
+            } else {
+                document.documentElement.classList.remove(
+                    'qech-sidebar-collapsed'
+                );
             }
         });
     </script>

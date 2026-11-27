@@ -28,9 +28,9 @@ class AttendanceRecord extends Model
      * The staff member who was scanned.
      */
     public function staff()
-    {
-        return $this->belongsTo(Staff::class);
-    }
+{
+    return $this->belongsTo(Staff::class, 'staff_id')->withTrashed();
+}
 
     /**
      * The device the scan was recorded on.

@@ -9,39 +9,130 @@ use App\Models\Staff;
 
 class AttendanceWebController extends Controller
 {
-    public function index(Request $request)
-    {
-        $user = $request->user();
-        $role = $user->role->name ?? null;
+    
 
-        // Management roles see everyone's scans; a Healthcare Worker only
-        // sees their own — same pattern as Rosters and Leave Requests.
-        $canViewAll = in_array($role, ['System Administrator', 'HR Administrator', 'Supervisor / Manager']);
-        $isSystemAdmin = $role === 'System Administrator';
+public function index(Request $request)
+{
+    $user = $request->user();
+    $role = $user->role->name ?? null;
 
-        $query = AttendanceRecord::with(['staff', 'device']);
+    // Management roles can view all staff attendance.
+    $canViewAll = in_array($role, [
+        'System Administrator',
+        'HR Administrator',
+        'Supervisor / Manager'
+    ]);
 
-        $noStaffLink = false;
+    $isSystemAdmin = $role === 'System Administrator';
 
-        if ($canViewAll) {
-            if ($request->filled('date')) {
-                $query->where('scan_date', $request->date);
-            }
-            if ($request->filled('status')) {
-                $query->where('status', $request->status);
-            }
-        } elseif ($user->staff_id) {
-            $query->where('staff_id', $user->staff_id);
-        } else {
-            $query->whereRaw('1 = 0');
-            $noStaffLink = true;
+    $query = AttendanceRecord::with([
+        'staff:id,first_name,last_name,staff_no',
+        'device:id,device_name'
+    ]);
+
+    $noStaffLink = false;
+
+    if ($canViewAll) {
+
+        if ($request->filled('date')) {
+            $query->where('scan_date', $request->date);
         }
 
-        $records = $query->orderByDesc('scan_date')->orderByDesc('scan_time')
-            ->paginate(20)->withQueryString();
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
 
-        return view('attendance.index', compact('records', 'canViewAll', 'isSystemAdmin', 'noStaffLink'));
+    } elseif ($user->staff_id) {
+
+        // Healthcare workers only see their own attendance.
+        $query->where('staff_id', $user->staff_id);
+
+    } else {
+
+        $query->whereRaw('1 = 0');
+        $noStaffLink = true;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Live attendance JSON response
+    |--------------------------------------------------------------------------
+    | JavaScript requests this response every 3 seconds.
+    | It returns the latest records without reloading the page.
+    */
+
+    if (
+        $request->boolean('live') &&
+        $request->expectsJson()
+    ) {
+        $liveRecords = (clone $query)
+            ->orderByDesc('scan_date')
+            ->orderByDesc('scan_time')
+            ->limit(30)
+            ->get()
+            ->map(function ($record) use ($isSystemAdmin) {
+
+                return [
+                    'id' => $record->id,
+
+                    'staff' => $record->staff ? [
+                        'id' => $record->staff->id,
+                        'first_name' => $record->staff->first_name,
+                        'last_name' => $record->staff->last_name,
+                        'staff_no' => $record->staff->staff_no,
+                    ] : null,
+
+                    'device' => $record->device ? [
+                        'device_name' => $record->device->device_name,
+                    ] : null,
+
+                    'scan_date' => $record->scan_date,
+
+                    'scan_date_formatted' =>
+                        \Carbon\Carbon::parse($record->scan_date)
+                            ->format('d M Y'),
+
+                    'scan_time' => $record->scan_time,
+
+                    'scan_time_formatted' =>
+                        \Carbon\Carbon::parse($record->scan_time)
+                            ->format('H:i:s'),
+
+                    'scan_type' => $record->scan_type,
+
+                    'status' => $record->status,
+
+                    'delete_url' => $isSystemAdmin
+                        ? route('attendance.destroy', $record)
+                        : null,
+
+                    'csrf_token' => $isSystemAdmin
+                        ? csrf_token()
+                        : null,
+                ];
+            });
+
+        return response()->json([
+            'records' => $liveRecords,
+        ]);
+    }
+
+    // Normal page loading and pagination remain unchanged.
+    $records = $query
+        ->orderByDesc('scan_date')
+        ->orderByDesc('scan_time')
+        ->paginate(20)
+        ->withQueryString();
+
+    return view('attendance.index', compact(
+        'records',
+        'canViewAll',
+        'isSystemAdmin',
+        'noStaffLink'
+    ));
+}
+
+
 
     /**
      * NFR-08: attendance records are immutable once committed. This mirrors

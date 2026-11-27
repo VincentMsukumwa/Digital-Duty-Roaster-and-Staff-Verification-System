@@ -5,7 +5,7 @@
     $isHR = in_array($role, ['HR Administrator', 'System Administrator']);
     $isAdmin = $role === 'System Administrator';
 
-    $linkBase = 'group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors duration-200';
+    $linkBase = 'group flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors duration-200';
     $linkActive = 'bg-gray-800 text-white font-medium';
     $linkInactive = 'text-gray-400 hover:bg-gray-800/70 hover:text-white';
 
@@ -19,58 +19,62 @@
               transform -translate-x-full lg:translate-x-0
               transition-transform duration-300 ease-in-out
               border-r border-white/5">
+{{-- BRAND --}}
+<div class="px-5 py-5 border-b border-white/10 sidebar-brand">
+    <div class="flex items-center justify-between gap-3">
+        <a href="{{ route('dashboard') }}"
+           class="flex items-center gap-3 min-w-0"
+           onclick="closeSidebar()">
 
-    {{-- BRAND --}}
-    <div class="px-5 py-5 border-b border-white/10">
-        <div class="flex items-center justify-between gap-3">
-            <a href="{{ route('dashboard') }}"
-               class="flex items-center gap-3 min-w-0"
-               onclick="closeSidebar()">
+            <div class="w-10 h-10 rounded-xl bg-[#0F766E]
+                        flex items-center justify-center
+                        text-white flex-shrink-0 shadow-lg">
 
-                <div class="w-9 h-9 rounded-xl bg-indigo-500
-                            flex items-center justify-center
-                            text-white font-bold text-lg flex-shrink-0">
-                    Q
-                </div>
-
-                <div class="min-w-0">
-                    <div class="text-white font-semibold tracking-wide">
-                        QECH
-                    </div>
-                    <div class="text-[11px] text-gray-500 truncate">
-                        Staff Management System
-                    </div>
-                </div>
-            </a>
-
-            <button type="button"
-                    onclick="closeSidebar()"
-                    class="lg:hidden w-8 h-8 rounded-lg
-                           flex items-center justify-center
-                           text-gray-400 hover:text-white hover:bg-gray-800"
-                    aria-label="Close navigation">
-
-                <svg class="w-5 h-5" fill="none"
-                     viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          stroke-width="2" d="M6 6l12 12M18 6L6 18"/>
+                <svg class="w-7 h-7" fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 11c0-1.1-.9-2-2-2s-2 .9-2 2v1c0 2.5-.5 4.5-1.5 6.5M12 7c-2.2 0-4 1.8-4 4v1c0 3-.7 5.5-2 7.5M12 4c-3.9 0-7 3.1-7 7v1c0 3.5-.8 6.5-2 8M12 11c1.1 0 2 .9 2 2v1c0 2.5-.5 4.5-1.5 6.5M12 7c2.2 0 4 1.8 4 4v1c0 3 .7 5.5 2 7.5M12 4c3.9 0 7 3.1 7 7v1c0 3.5.8 6.5 2 8"/>
                 </svg>
-            </button>
-        </div>
+            </div>
+
+            <div class="min-w-0 sidebar-brand-copy">
+                <div class="text-white font-bold tracking-wide text-sm">
+                    QECH ATTENDANCE
+                </div>
+                <div class="text-[10px] text-teal-400 tracking-wide truncate">
+                    Digital Duty &amp; Attendance
+                </div>
+            </div>
+        </a>
+
+        <button type="button"
+                onclick="closeSidebar()"
+                class="lg:hidden w-8 h-8 rounded-lg
+                       flex items-center justify-center
+                       text-gray-400 hover:text-white hover:bg-gray-800"
+                aria-label="Close navigation">
+            <svg class="w-5 h-5" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2" d="M6 6l12 12M18 6L6 18"/>
+            </svg>
+        </button>
     </div>
+</div>
 
     {{-- NAVIGATION --}}
-    <nav class="flex-1 px-3 py-5 overflow-y-auto space-y-1">
+    <nav class="flex-1 min-h-0 px-3 py-3 space-y-1 overflow-y-auto sidebar-navigation">
 
         {{-- MAIN MENU --}}
         <p class="px-3 mb-2 text-[10px] font-semibold
-                  uppercase tracking-[0.16em] text-gray-500">
+                  uppercase tracking-[0.16em] text-gray-500 sidebar-section-label">
             Main Menu
         </p>
 
         {{-- DASHBOARD --}}
         <a href="{{ route('dashboard') }}"
            onclick="closeSidebar()"
+           title="Dashboard"
            @class([$linkBase, $linkActive => request()->routeIs('dashboard'),
                    $linkInactive => !request()->routeIs('dashboard')])>
             <svg class="{{ $iconBase }}" fill="none" viewBox="0 0 24 24"
@@ -80,13 +84,14 @@
                 <rect x="14" y="14" width="7" height="7" rx="1.5"/>
                 <rect x="3" y="14" width="7" height="7" rx="1.5"/>
             </svg>
-            <span>Dashboard</span>
+            <span class="sidebar-link-label">Dashboard</span>
         </a>
 
         {{-- ROSTERS --}}
         @if (Route::has('rosters.index'))
             <a href="{{ route('rosters.index') }}"
                onclick="closeSidebar()"
+               title="Duty Rosters"
                @class([$linkBase, $linkActive => request()->routeIs('rosters.*'),
                        $linkInactive => !request()->routeIs('rosters.*')])>
                 <svg class="{{ $iconBase }}" fill="none" viewBox="0 0 24 24"
@@ -96,7 +101,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="m8 15 2 2 5-4"/>
                 </svg>
-                <span>Duty Rosters</span>
+                <span class="sidebar-link-label">Duty Rosters</span>
             </a>
         @endif
 
@@ -104,6 +109,7 @@
         @if (Route::has('attendance.index'))
             <a href="{{ route('attendance.index') }}"
                onclick="closeSidebar()"
+               title="Attendance"
                @class([$linkBase, $linkActive => request()->routeIs('attendance.*'),
                        $linkInactive => !request()->routeIs('attendance.*')])>
                 <svg class="{{ $iconBase }}" fill="none" viewBox="0 0 24 24"
@@ -112,7 +118,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="m8 12 2.5 2.5L16 9"/>
                 </svg>
-                <span>Attendance</span>
+                <span class="sidebar-link-label">Attendance</span>
             </a>
         @endif
 
@@ -120,6 +126,7 @@
         @if (Route::has('leave-requests.index'))
             <a href="{{ route('leave-requests.index') }}"
                onclick="closeSidebar()"
+               title="Leave Requests"
                @class([$linkBase, $linkActive => request()->routeIs('leave-requests.*'),
                        $linkInactive => !request()->routeIs('leave-requests.*')])>
                 <svg class="{{ $iconBase }}" fill="none" viewBox="0 0 24 24"
@@ -128,14 +135,14 @@
                     <path stroke-linecap="round" d="M16 3v4M8 3v4M3 10h18"/>
                     <path stroke-linecap="round" d="M8 14h3M8 17h6"/>
                 </svg>
-                <span>Leave Requests</span>
+                <span class="sidebar-link-label">Leave Requests</span>
             </a>
         @endif
 
         {{-- HR MANAGEMENT --}}
         @if ($isHR)
-            <p class="px-3 pt-6 pb-2 text-[10px] font-semibold
-                      uppercase tracking-[0.16em] text-gray-500">
+            <p class="px-3 pt-4 pb-1 text-[10px] font-semibold
+                      uppercase tracking-[0.16em] text-gray-500 sidebar-section-label">
                 HR Management
             </p>
 
@@ -143,6 +150,7 @@
             @if (Route::has('staff.index'))
                 <a href="{{ route('staff.index') }}"
                    onclick="closeSidebar()"
+                   title="Staff"
                    @class([$linkBase, $linkActive => request()->routeIs('staff.*'),
                            $linkInactive => !request()->routeIs('staff.*')])>
                     <svg class="{{ $iconBase }}" fill="none" viewBox="0 0 24 24"
@@ -153,7 +161,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
                     </svg>
-                    <span>Staff</span>
+                    <span class="sidebar-link-label">Staff</span>
                 </a>
             @endif
 
@@ -161,6 +169,7 @@
             @if (Route::has('departments.index'))
                 <a href="{{ route('departments.index') }}"
                    onclick="closeSidebar()"
+                   title="Departments"
                    @class([$linkBase, $linkActive => request()->routeIs('departments.*'),
                            $linkInactive => !request()->routeIs('departments.*')])>
                     <svg class="{{ $iconBase }}" fill="none" viewBox="0 0 24 24"
@@ -170,7 +179,7 @@
                         <path stroke-linecap="round"
                               d="M8 9v1M8 13v1M8 17v1M15 13v1M15 17v1"/>
                     </svg>
-                    <span>Departments</span>
+                    <span class="sidebar-link-label">Departments</span>
                 </a>
             @endif
 
@@ -178,6 +187,7 @@
             @if (Route::has('reports-log.index'))
                 <a href="{{ route('reports-log.index') }}"
                    onclick="closeSidebar()"
+                   title="Reports Log"
                    @class([$linkBase, $linkActive => request()->routeIs('reports-log.*'),
                            $linkInactive => !request()->routeIs('reports-log.*')])>
                     <svg class="{{ $iconBase }}" fill="none" viewBox="0 0 24 24"
@@ -185,15 +195,15 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
                     </svg>
-                    <span>Reports Log</span>
+                    <span class="sidebar-link-label">Reports Log</span>
                 </a>
             @endif
         @endif
 
         {{-- ADMINISTRATION --}}
         @if ($isAdmin)
-            <p class="px-3 pt-6 pb-2 text-[10px] font-semibold
-                      uppercase tracking-[0.16em] text-gray-500">
+            <p class="px-3 pt-4 pb-1 text-[10px] font-semibold
+                      uppercase tracking-[0.16em] text-gray-500 sidebar-section-label">
                 Administration
             </p>
 
@@ -201,6 +211,7 @@
             @if (Route::has('users.index'))
                 <a href="{{ route('users.index') }}"
                    onclick="closeSidebar()"
+                   title="Users"
                    @class([$linkBase, $linkActive => request()->routeIs('users.*'),
                            $linkInactive => !request()->routeIs('users.*')])>
                     <svg class="{{ $iconBase }}" fill="none" viewBox="0 0 24 24"
@@ -210,7 +221,7 @@
                         <circle cx="10" cy="7" r="4"/>
                         <path stroke-linecap="round" d="M19 8v6M16 11h6"/>
                     </svg>
-                    <span>Users</span>
+                    <span class="sidebar-link-label">Users</span>
                 </a>
             @endif
 
@@ -218,6 +229,7 @@
             @if (Route::has('roles.index'))
                 <a href="{{ route('roles.index') }}"
                    onclick="closeSidebar()"
+                   title="Roles"
                    @class([$linkBase, $linkActive => request()->routeIs('roles.*'),
                            $linkInactive => !request()->routeIs('roles.*')])>
                     <svg class="{{ $iconBase }}" fill="none" viewBox="0 0 24 24"
@@ -227,7 +239,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="m9 12 2 2 4-4"/>
                     </svg>
-                    <span>Roles</span>
+                    <span class="sidebar-link-label">Roles</span>
                 </a>
             @endif
 
@@ -235,6 +247,7 @@
             @if (Route::has('devices.index'))
                 <a href="{{ route('devices.index') }}"
                    onclick="closeSidebar()"
+                   title="Devices"
                    @class([$linkBase, $linkActive => request()->routeIs('devices.*'),
                            $linkInactive => !request()->routeIs('devices.*')])>
                     <svg class="{{ $iconBase }}" fill="none" viewBox="0 0 24 24"
@@ -244,7 +257,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="m9 9 2 2 4-4"/>
                     </svg>
-                    <span>Devices</span>
+                    <span class="sidebar-link-label">Devices</span>
                 </a>
             @endif
 
@@ -252,6 +265,7 @@
             @if (Route::has('reports.index'))
                 <a href="{{ route('reports.index') }}"
                    onclick="closeSidebar()"
+                   title="Reports"
                    @class([$linkBase, $linkActive => request()->routeIs('reports.index'),
                            $linkInactive => !request()->routeIs('reports.index')])>
                     <svg class="{{ $iconBase }}" fill="none" viewBox="0 0 24 24"
@@ -260,7 +274,7 @@
                               d="M3 3v18h18"/>
                         <path stroke-linecap="round" d="M8 17v-4M13 17V7M18 17v-8"/>
                     </svg>
-                    <span>Reports</span>
+                    <span class="sidebar-link-label">Reports</span>
                 </a>
             @endif
 
@@ -268,6 +282,7 @@
             @if (Route::has('settings.index'))
                 <a href="{{ route('settings.index') }}"
                    onclick="closeSidebar()"
+                   title="Settings"
                    @class([$linkBase, $linkActive => request()->routeIs('settings.*'),
                            $linkInactive => !request()->routeIs('settings.*')])>
                     <svg class="{{ $iconBase }}" fill="none" viewBox="0 0 24 24"
@@ -277,7 +292,7 @@
                               d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 3-1.7-.7a8 8 0 0 1-2 .8l-.3 1.8h-3.5l-.3-1.8a8 8 0 0 1-2-.8l-1.7.7-1.8-3 .1-.1a1.7 1.7 0 0 0 .3-1.9l-1.7-1 .9-3.4 2-.1a8 8 0 0 1 1.4-1.4l-.1-2 3.4-.9 1 1.7a8 8 0 0 1 2 0l1-1.7 3.4.9-.1 2a8 8 0 0 1 1.4 1.4l2 .1.9 3.4-1.7 1Z"
                               transform="translate(-1 -1) scale(1.08)"/>
                     </svg>
-                    <span>Settings</span>
+                    <span class="sidebar-link-label">Settings</span>
                 </a>
             @endif
 
@@ -285,6 +300,7 @@
             @if (Route::has('audit-logs.index'))
                 <a href="{{ route('audit-logs.index') }}"
                    onclick="closeSidebar()"
+                   title="Audit Logs"
                    @class([$linkBase, $linkActive => request()->routeIs('audit-logs.*'),
                            $linkInactive => !request()->routeIs('audit-logs.*')])>
                     <svg class="{{ $iconBase }}" fill="none" viewBox="0 0 24 24"
@@ -294,23 +310,23 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M21 3v6h-6"/>
                     </svg>
-                    <span>Audit Logs</span>
+                    <span class="sidebar-link-label">Audit Logs</span>
                 </a>
             @endif
         @endif
     </nav>
 
     {{-- USER PROFILE FOOTER --}}
-    <div class="p-3 border-t border-white/10">
+    <div class="p-3 border-t border-white/10 sidebar-footer">
         <div class="rounded-xl p-3 hover:bg-gray-800/70 transition-colors">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 sidebar-profile">
                 <div class="w-9 h-9 rounded-full bg-gray-700
                             flex items-center justify-center
                             text-white text-sm font-semibold flex-shrink-0">
                     {{ strtoupper(substr(auth()->user()->username ?? 'U', 0, 1)) }}
                 </div>
 
-                <div class="min-w-0 flex-1">
+                <div class="min-w-0 flex-1 sidebar-profile-copy">
                     <p class="text-sm font-medium text-gray-200 truncate">
                         {{ auth()->user()->username ?? 'User' }}
                     </p>
@@ -319,7 +335,7 @@
                     </p>
                 </div>
 
-                <svg class="w-4 h-4 text-gray-500 flex-shrink-0"
+                <svg class="w-4 h-4 text-gray-500 flex-shrink-0 sidebar-profile-arrow"
                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           stroke-width="2" d="m9 18 6-6-6-6"/>
@@ -327,9 +343,34 @@
             </div>
         </div>
 
-        <p class="px-3 pt-2 text-[10px] text-gray-600">
+        <p class="px-3 pt-2 text-[10px] text-gray-600 sidebar-location">
             QECH · Malawi
         </p>
+    </div>
+
+    {{-- COLLAPSE / EXPAND BUTTON --}}
+    <div class="px-3 py-3 border-t border-white/10">
+        <button type="button"
+        id="sidebarCollapseButton"
+        onclick="window.toggleDesktopSidebar()"
+        class="sidebar-collapse-button w-full flex items-center gap-3
+               px-3 py-3 rounded-xl text-gray-500 hover:bg-gray-100"
+        title="Collapse sidebar"
+        aria-label="Collapse sidebar">
+
+    <svg id="sidebarCollapseIcon"
+         class="w-5 h-5 flex-shrink-0 transition-transform"
+         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"/>
+    </svg>
+
+    <span class="sidebar-collapse-label text-sm font-medium">
+        Collapse sidebar
+    </span>
+</button>
     </div>
 
 </aside>
